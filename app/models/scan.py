@@ -27,3 +27,12 @@ class ScanResponse(BaseModel):
     product_name: Optional[str] = None
     status: ActionResponse
     message: Optional[str] = None
+
+class InventoryItem(BaseModel):
+    barcode: str
+    product_name: str | None
+    quantity: int
+
+class InventoryResponse(BaseModel):
+    device_id: str
+    items: list[InventoryItem]
