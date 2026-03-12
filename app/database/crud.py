@@ -1,6 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
-from app.database.models import Product, ScanEvent
+from app.database.models import Product, ScanEvent, User
 from datetime import datetime, timezone
 
 async def get_product(db: AsyncSession, barcode: str) -> Product | None:
@@ -49,3 +49,17 @@ async def get_inventory(db: AsyncSession, device_id: str):
     quantities = {k: v for k, v in quantities.items() if v > 0}
 
     return quantities
+
+async def get_user_by_email(db: AsyncSession, email: str):
+    result = await db.execute(select(User).where(User.email == email))
+    return result.scalar_one_or_none()
+
+async def create_user(db: AsyncSession, email: str, password_hash: str):
+    user = User(
+        email=email,
+        password_hash=password_hash,
+        created_at=datetime.now(timezone.utc)
+    )
+    db.add(user)
+    await db.commit()
+    return user
