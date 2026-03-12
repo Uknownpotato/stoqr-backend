@@ -78,3 +78,7 @@ async def create_device(db: AsyncSession, user_id: int, name: str, api_key: str)
 async def get_device_by_api_key(db: AsyncSession, api_key: str):
     result = await db.execute(select(Device).where(Device.api_key == api_key))
     return result.scalar_one_or_none()
+
+async def get_device_by_id(db: AsyncSession, device_id: int):
+    result = await db.execute(select(Device).where(Device.id == device_id))
+    return result.scalar_one_or_none()

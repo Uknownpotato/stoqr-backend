@@ -14,7 +14,7 @@ async def get_product_name(barcode: str) -> str | None:
         data = response.json()
     
     except Exception as e:
-        logger.error(f"Product lookup failed: {e}")
+        logger.error(f"Product lookup failed: {type(e).__name__}: {e}")
         return None
 
     if data.get("status") == 1:
