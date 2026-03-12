@@ -12,6 +12,9 @@ async def register_device(request: DeviceRegisterRequest, current_user: dict = D
     email = current_user["sub"]
     user = await get_user_by_email(db, email)
 
+    if user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+
     api_key = secrets.token_hex(32)
     device = await create_device(db, user.id, request.name, api_key)
 

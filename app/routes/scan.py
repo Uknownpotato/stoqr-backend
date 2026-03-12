@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
-from ..database.deps import get_db
+from ..database.deps import get_db, get_current_device
 from ..database.crud import get_product, save_product, save_scan_event
 from ..models.scan import ScanEvent, ScanResponse, ActionResponse
 from ..services.product import get_product_name
@@ -10,7 +10,7 @@ router = APIRouter()
 logger = logging.getLogger(__name__)
 
 @router.post("/scan", response_model=ScanResponse)
-async def scan(event: ScanEvent, db: AsyncSession = Depends(get_db)):
+async def scan(event: ScanEvent, db: AsyncSession = Depends(get_db), device = Depends(get_current_device)):
     logger.info(f"Scan received: {event.barcode} - {event.action}")
 
     product = await get_product(db, event.barcode)
