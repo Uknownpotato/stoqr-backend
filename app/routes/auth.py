@@ -6,7 +6,7 @@ from app.services.auth import hash_password, verify_password, create_access_toke
 from app.models.scan import RegisterRequest, LoginRequest, TokenResponse
 import logging
 
-router = APIRouter(prefix="/auth")
+router = APIRouter()
 logger = logging.getLogger(__name__)
 
 @router.post("/register", response_model=TokenResponse)

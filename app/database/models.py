@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, DateTime, Integer
+from sqlalchemy import Column, String, DateTime, Integer, ForeignKey
 from sqlalchemy.orm import DeclarativeBase
 
 class Base(DeclarativeBase):
@@ -28,4 +28,13 @@ class User(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     email = Column(String, nullable=False, unique=True)
     password_hash = Column(String, nullable=False)
+    created_at = Column(DateTime)
+
+class Device(Base):
+    __tablename__ = "devices"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    api_key = Column(String, nullable=False, unique=True)
+    name = Column(String)
     created_at = Column(DateTime)

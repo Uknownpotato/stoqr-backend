@@ -48,3 +48,11 @@ class LoginRequest(BaseModel):
 class TokenResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
+
+class DeviceRegisterRequest(BaseModel):
+    name: str
+
+class DeviceRegisterResponse(BaseModel):
+    device_id: int
+    name: str
+    api_key: str

@@ -1,6 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
-from app.database.models import Product, ScanEvent, User
+from app.database.models import Product, ScanEvent, User, Device
 from datetime import datetime, timezone
 
 async def get_product(db: AsyncSession, barcode: str) -> Product | None:
@@ -63,3 +63,18 @@ async def create_user(db: AsyncSession, email: str, password_hash: str):
     db.add(user)
     await db.commit()
     return user
+
+async def create_device(db: AsyncSession, user_id: int, name: str, api_key: str):
+    device = Device(
+        user_id=user_id,
+        name=name,
+        api_key=api_key,
+        created_at=datetime.now(timezone.utc)
+    )
+    db.add(device)
+    await db.commit()
+    return device
+
+async def get_device_by_api_key(db: AsyncSession, api_key: str):
+    result = await db.execute(select(Device).where(Device.api_key == api_key))
+    return result.scalar_one_or_none()

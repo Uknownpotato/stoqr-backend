@@ -1,6 +1,6 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
-from app.routes import scan, inventory, auth
+from app.routes import scan, inventory, auth, devices
 from app.database.database import init_db
 import logging
 import os
@@ -16,7 +16,8 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 app.include_router(scan.router)
 app.include_router(inventory.router)
-app.include_router(auth.router)
+app.include_router(auth.router, prefix="/auth")
+app.include_router(devices.router, prefix="/devices")
 
 @app.get("/")
 async def root():
