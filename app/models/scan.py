@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr, Field
 from enum import Enum
 from typing import Optional
 
@@ -37,8 +37,8 @@ class InventoryResponse(BaseModel):
     items: list[InventoryItem]
 
 class RegisterRequest(BaseModel):
-    email: str
-    password: str
+    email: EmailStr
+    password: str = Field(min_length=8)
 
 class LoginRequest(BaseModel):
     email: str
