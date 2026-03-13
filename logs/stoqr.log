@@ -4,3 +4,8 @@
 2026-03-13 16:58:12,490 - app.routes.scan - INFO - Cache miss - calling OFF for: 7311043019854
 2026-03-13 16:58:13,386 - httpx - INFO - HTTP Request: GET https://world.openfoodfacts.org/api/v0/product/7311043019854.json "HTTP/1.1 200 OK"
 2026-03-13 16:59:41,703 - root - INFO - Logging initialized
+2026-03-13 23:23:31,430 - root - INFO - Logging initialized
+2026-03-13 23:24:10,093 - app.routes.auth - INFO - New user registered: test@stoqr.app
+2026-03-13 23:24:59,683 - app.routes.scan - INFO - Scan received: 7311043019854 - ActionType.ADD
+2026-03-13 23:24:59,685 - app.routes.scan - INFO - Cache miss - calling OFF for: 7311043019854
+2026-03-13 23:25:00,868 - httpx - INFO - HTTP Request: GET https://world.openfoodfacts.org/api/v0/product/7311043019854.json "HTTP/1.1 200 OK"
