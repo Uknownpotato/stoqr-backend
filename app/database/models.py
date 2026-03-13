@@ -38,3 +38,12 @@ class Device(Base):
     api_key = Column(String, nullable=False, unique=True)
     name = Column(String)
     created_at = Column(DateTime)
+
+class RefreshToken(Base):
+    __tablename__ = "refresh_tokens"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    token = Column(String, nullable=False, unique=True)
+    created_at = Column(DateTime)
+    expires_at = Column(DateTime)

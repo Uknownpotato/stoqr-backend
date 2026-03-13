@@ -1,6 +1,7 @@
 from datetime import datetime, timezone, timedelta
 from jose import JWTError, jwt
 from passlib.context import CryptContext
+import secrets
 import os
 from dotenv import load_dotenv
 
@@ -30,3 +31,6 @@ def verify_access_token(token: str) -> dict | None:
         return payload
     except JWTError:
         return None
+    
+def create_refresh_token() -> str:
+    return secrets.token_hex(32)

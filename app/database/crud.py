@@ -1,6 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
-from app.database.models import Product, ScanEvent, User, Device
+from app.database.models import Product, ScanEvent, User, Device, RefreshToken
 from datetime import datetime, timezone
 
 async def get_product(db: AsyncSession, barcode: str) -> Product | None:
@@ -81,4 +81,31 @@ async def get_device_by_api_key(db: AsyncSession, api_key: str):
 
 async def get_device_by_id(db: AsyncSession, device_id: int):
     result = await db.execute(select(Device).where(Device.id == device_id))
+    return result.scalar_one_or_none()
+
+async def create_refresh_token(db: AsyncSession, user_id: int, token: str, expires_at: datetime):
+    refreshToken = RefreshToken(
+        user_id=user_id,
+        token=token,
+        created_at=datetime.now(timezone.utc),
+        expires_at=expires_at
+    )
+    db.add(refreshToken)
+    await db.commit()
+    return refreshToken
+
+async def get_refresh_token(db: AsyncSession, token: str):
+    result = await db.execute(select(RefreshToken).where(RefreshToken.token == token))
+    return result.scalar_one_or_none()
+
+async def delete_refresh_token(db: AsyncSession, token: str):
+    result = await db.execute(select(RefreshToken).where(RefreshToken.token == token))
+    refresh_token = result.scalar_one_or_none()
+    if refresh_token:
+        await db.delete(refresh_token)
+        await db.commit()
+    return
+
+async def get_user_by_id(db: AsyncSession, user_id: int):
+    result = await db.execute(select(User).where(User.id == user_id))
     return result.scalar_one_or_none()
