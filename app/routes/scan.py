@@ -25,7 +25,7 @@ async def scan(event: ScanEvent, db: AsyncSession = Depends(get_db), device = De
         if product_name:
             await save_product(db, event.barcode, product_name, None)
 
-    await save_scan_event(db, str(device.id), event.barcode, event.action, event.source)
+    await save_scan_event(db, device.id, event.barcode, event.action, event.source)
 
     if product_name is None:
         return ScanResponse(

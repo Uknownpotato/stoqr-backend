@@ -16,7 +16,7 @@ class ScanEvent(Base):
     __tablename__ = "scan_events"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    device_id = Column(String)
+    device_id = Column(Integer, ForeignKey("devices.id"), nullable=False)
     barcode = Column(String, nullable=False)
     action = Column(String, nullable=False)
     timestamp = Column(DateTime)

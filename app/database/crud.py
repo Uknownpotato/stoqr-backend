@@ -18,7 +18,7 @@ async def save_product(db: AsyncSession, barcode: str, product_name: str, brand:
     await db.commit()
     return product
 
-async def save_scan_event(db: AsyncSession, device_id: str, barcode: str, action: str, source: str):
+async def save_scan_event(db: AsyncSession, device_id: int, barcode: str, action: str, source: str):
     event = ScanEvent(
         device_id=device_id,
         barcode=barcode,
@@ -30,7 +30,7 @@ async def save_scan_event(db: AsyncSession, device_id: str, barcode: str, action
     await db.commit()
     return event
 
-async def get_inventory(db: AsyncSession, device_id: str):
+async def get_inventory(db: AsyncSession, device_id: int):
     result = await db.execute(
         select(ScanEvent).where(ScanEvent.device_id == device_id)
     )

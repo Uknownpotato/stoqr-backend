@@ -20,8 +20,6 @@ async def get_inventory_router(device_id: int, db: AsyncSession = Depends(get_db
     if device.user_id != user.id:
         raise HTTPException(status_code=403, detail="Access denied")
     
-
-    
     quantities = await get_inventory(db, device_id)
 
     items = []

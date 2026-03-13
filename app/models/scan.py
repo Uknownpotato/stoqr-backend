@@ -17,7 +17,6 @@ class SourceType(str, Enum):
     MANUAL = "manual"
 
 class ScanEvent(BaseModel):
-    device_id: str
     barcode: str
     action: ActionType
     timestamp: str
