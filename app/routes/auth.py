@@ -18,6 +18,7 @@ async def register(request: RegisterRequest, db: AsyncSession = Depends(get_db))
     
     password_hash = hash_password(request.password)
     user = await create_user(db, request.email, password_hash)
+    logger.info(f"New user registered: {request.email}")
 
     expires_at = datetime.now(timezone.utc) + timedelta(days=30)
     refresh_token = create_refresh_token()
@@ -31,10 +32,12 @@ async def register(request: RegisterRequest, db: AsyncSession = Depends(get_db))
 async def login(request: LoginRequest, db: AsyncSession = Depends(get_db)):
     user = await get_user_by_email(db, request.email)
     if user is None:
+        logger.warning(f"Failed login attempt for: {request.email}")
         raise HTTPException(status_code=401, detail="Invalid credentials")
     
     password_verify = verify_password(request.password, user.password_hash)
     if password_verify is False:
+        logger.warning(f"Failed login attempt for: {request.email}")
         raise HTTPException(status_code=401, detail="Invalid credentials")
     
     expires_at = datetime.now(timezone.utc) + timedelta(days=30)
@@ -48,11 +51,14 @@ async def login(request: LoginRequest, db: AsyncSession = Depends(get_db)):
 async def refresh(refresh_token: str, db: AsyncSession = Depends(get_db)):
     token = await get_refresh_token(db, refresh_token)
     if token is None:
+        logger.warning(f"Invalid refresh token attempt")
         raise HTTPException(status_code=401, detail="Invalid refresh token")
+    
     if token.expires_at.replace(tzinfo=timezone.utc) < datetime.now(timezone.utc):
+        logger.warning(f"Expired refresh token attempt")
         raise HTTPException(status_code=401, detail="Refresh token expired")
+    
     user = await get_user_by_id(db, token.user_id)
-
     await delete_refresh_token(db, refresh_token)
 
     expires_at = datetime.now(timezone.utc) + timedelta(days=30)

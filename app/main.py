@@ -6,11 +6,12 @@ from slowapi.errors import RateLimitExceeded
 from app.routes import scan, inventory, auth, devices
 from app.database.database import init_db
 from app.limiter import limiter
+from app.logger import setup_logging
 import logging
 import os
 from dotenv import load_dotenv
 
-logging.basicConfig(level=logging.INFO)
+setup_logging()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
