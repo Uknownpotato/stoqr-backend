@@ -7,6 +7,8 @@ from app.routes import scan, inventory, auth, devices
 from app.database.database import init_db
 from app.limiter import limiter
 from app.logger import setup_logging
+from alembic.config import Config
+from alembic import command
 import logging
 import os
 from dotenv import load_dotenv
@@ -15,6 +17,8 @@ setup_logging()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    alembic_cfg = Config("alembic.ini")
+    command.upgrade(alembic_cfg, "head")
     yield
 
 app = FastAPI(lifespan=lifespan)

@@ -9,3 +9,4 @@
 2026-03-13 23:24:59,683 - app.routes.scan - INFO - Scan received: 7311043019854 - ActionType.ADD
 2026-03-13 23:24:59,685 - app.routes.scan - INFO - Cache miss - calling OFF for: 7311043019854
 2026-03-13 23:25:00,868 - httpx - INFO - HTTP Request: GET https://world.openfoodfacts.org/api/v0/product/7311043019854.json "HTTP/1.1 200 OK"
+2026-03-14 02:21:19,228 - root - INFO - Logging initialized
