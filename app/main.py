@@ -23,8 +23,14 @@ async def lifespan(app: FastAPI):
     yield
 
 def run_migrations():
-    alembic_cfg = Config("alembic.ini")
-    command.upgrade(alembic_cfg, "head")
+    try:
+        import os
+        base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        alembic_cfg = Config(os.path.join(base_dir,"alembic.ini"))
+        command.upgrade(alembic_cfg, "head")
+    except Exception as e:
+        print(f"Migration error: {e}")
+        raise
 
 app = FastAPI(lifespan=lifespan)
 app.state.limiter = limiter
