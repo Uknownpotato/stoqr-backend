@@ -10,6 +10,15 @@ from alembic import context
 # access to the values within the .ini file in use.
 config = context.config
 
+import os
+from dotenv import load_dotenv
+load_dotenv()
+
+database_url = os.getenv("DATABASE_URL", "sqlite:///./stoqr.db")
+database_url = database_url.replace("postgresql+asyncpg://", "postgresql://")
+database_url = database_url.replace("sqlite+aiosqlite://", "sqlite://")
+config.set_main_option("sqlalchemy.url", database_url)
+
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
 if config.config_file_name is not None:
