@@ -12,14 +12,19 @@ from alembic import command
 import logging
 import os
 from dotenv import load_dotenv
+import asyncio
 
 setup_logging()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    loop = asyncio.get_event_loop()
+    await loop.run_in_executor(None, run_migrations)
+    yield
+
+def run_migrations():
     alembic_cfg = Config("alembic.ini")
     command.upgrade(alembic_cfg, "head")
-    yield
 
 app = FastAPI(lifespan=lifespan)
 app.state.limiter = limiter
