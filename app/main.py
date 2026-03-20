@@ -18,9 +18,11 @@ setup_logging()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    loop = asyncio.get_event_loop()
-    await loop.run_in_executor(None, run_migrations)
+    #loop = asyncio.get_event_loop()
+    #await loop.run_in_executor(None, run_migrations)
+    run_migrations()
     yield
+
 
 def run_migrations():
     try:

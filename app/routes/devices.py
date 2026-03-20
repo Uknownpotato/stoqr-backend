@@ -10,8 +10,12 @@ router = APIRouter()
 @router.post("/claim", response_model=ClaimDeviceResponse)
 async def claim_device(request: ClaimDeviceRequest, db: AsyncSession = Depends(get_db)):
     existing = await get_claimed_device_by_mac(db, request.mac_address)
-    if existing and not existing.linked:
-        return ClaimDeviceResponse(claim_token=existing.claim_token)
+    if existing:
+        if not existing.linked:
+            return ClaimDeviceResponse(claim_token=existing.claim_token)
+        else:
+            await db.delete(existing)
+            await db.commit()
     
     claim_token = secrets.token_hex(16)
     await create_claimed_device(db, request.mac_address, claim_token)
