@@ -1,6 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
-from app.database.models import Product, ScanEvent, User, Device, RefreshToken
+from app.database.models import Product, ScanEvent, User, Device, RefreshToken, ClaimedDevice
 from datetime import datetime, timezone
 
 async def get_product(db: AsyncSession, barcode: str) -> Product | None:
@@ -109,3 +109,32 @@ async def delete_refresh_token(db: AsyncSession, token: str):
 async def get_user_by_id(db: AsyncSession, user_id: int):
     result = await db.execute(select(User).where(User.id == user_id))
     return result.scalar_one_or_none()
+
+async def create_claimed_device(db: AsyncSession, mac_address: str, claim_token: str):
+    device = ClaimedDevice(
+        mac_address=mac_address,
+        claim_token=claim_token,
+        claimed_at=datetime.now(timezone.utc),
+        linked=False
+    )
+    db.add(device)
+    await db.commit()
+    return device
+
+async def get_claimed_device_by_token(db: AsyncSession, claim_token: str):
+    result = await db.execute(select(ClaimedDevice).where(ClaimedDevice.claim_token == claim_token))
+    return result.scalar_one_or_none()
+
+async def get_claimed_device_by_mac(db: AsyncSession, mac_address: str):
+    result = await db.execute(select(ClaimedDevice).where(ClaimedDevice.mac_address == mac_address))
+    return result.scalar_one_or_none()
+
+async def link_claimed_device(db: AsyncSession, claim_token: str, device_id: int):
+    result = await db.execute(select(ClaimedDevice).where(ClaimedDevice.claim_token == claim_token))
+    claimed = result.scalar_one_or_none()
+    if claimed is None:
+        return None
+    claimed.linked = True
+    claimed.device_id = device_id
+    await db.commit()
+    return claimed

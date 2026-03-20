@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, DateTime, Integer, ForeignKey
+from sqlalchemy import Column, String, DateTime, Integer, ForeignKey, Boolean
 from sqlalchemy.orm import DeclarativeBase
 
 class Base(DeclarativeBase):
@@ -47,3 +47,13 @@ class RefreshToken(Base):
     token = Column(String, nullable=False, unique=True)
     created_at = Column(DateTime)
     expires_at = Column(DateTime)
+
+class ClaimedDevice(Base):
+    __tablename__ = "claimed_devices"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    mac_address = Column(String, nullable=False, unique=True)
+    claim_token = Column(String, nullable=False, unique=True)
+    claimed_at = Column(DateTime)
+    linked = Column(Boolean, default=False, nullable=False)
+    device_id = Column(Integer, ForeignKey("devices.id"), nullable=True)
