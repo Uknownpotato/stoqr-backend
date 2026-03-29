@@ -25,9 +25,14 @@ async def lifespan(app: FastAPI):
 
 def run_migrations():
     try:
-        import os
         base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         alembic_cfg = Config(os.path.join(base_dir,"alembic.ini"))
+
+        database_url = os.getenv("DATABASE_URL", "sqlite:///./stoqr.db")
+        database_url = database_url.replace("postgresql+asyncpg://", "postgresql://")
+        database_url = database_url.replace("sqlite+aiosqlite://", "sqlite://")
+        alembic_cfg.set_main_option("sqlalchemy.url", database_url)
+
         command.upgrade(alembic_cfg, "head")
     except Exception as e:
         print(f"Migration error: {e}")
