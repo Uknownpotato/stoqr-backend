@@ -1,6 +1,7 @@
 from datetime import datetime, timezone, timedelta
 from jose import JWTError, jwt
 from passlib.context import CryptContext
+from app.utils import utcnow
 import secrets
 import os
 from dotenv import load_dotenv
@@ -21,7 +22,7 @@ def verify_password(plain: str, hashed: str) -> bool:
 
 def create_access_token(data: dict) -> str:
     to_encode = data.copy()
-    expire = datetime.now(timezone.utc) + timedelta(minutes=JWT_EXPIRE_MINUTES)
+    expire = utcnow() + timedelta(minutes=JWT_EXPIRE_MINUTES) #datetime.now(timezone.utc) + timedelta(minutes=JWT_EXPIRE_MINUTES)
     to_encode.update({"exp": expire})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 

@@ -16,13 +16,6 @@ import asyncio
 
 setup_logging()
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    #loop = asyncio.get_event_loop()
-    #await loop.run_in_executor(None, run_migrations)
-    run_migrations()
-    yield
-
 def run_migrations():
     try:
         base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -37,6 +30,14 @@ def run_migrations():
     except Exception as e:
         print(f"Migration error: {e}")
         raise
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    #loop = asyncio.get_event_loop()
+    #await loop.run_in_executor(None, run_migrations)
+
+    yield
+
 
 app = FastAPI(lifespan=lifespan)
 app.state.limiter = limiter

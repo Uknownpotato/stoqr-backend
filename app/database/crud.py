@@ -2,6 +2,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from app.database.models import Product, ScanEvent, User, Device, RefreshToken
 from datetime import datetime, timezone
+from app.utils import utcnow
 
 async def get_product(db: AsyncSession, barcode: str) -> Product | None:
     result = await db.execute(select(Product).where(Product.barcode == barcode))
@@ -12,7 +13,7 @@ async def save_product(db: AsyncSession, barcode: str, product_name: str, brand:
         barcode=barcode,
         product_name=product_name,
         brand=brand,
-        cached_at=datetime.now(timezone.utc)
+        cached_at=utcnow()  #datetime.now(timezone.utc)
     )
     db.add(product)
     await db.commit()
@@ -23,7 +24,7 @@ async def save_scan_event(db: AsyncSession, device_id: int, barcode: str, action
         device_id=device_id,
         barcode=barcode,
         action=action,
-        timestamp=datetime.now(timezone.utc),
+        timestamp=utcnow(),  #datetime.now(timezone.utc),
         source=source
     )
     db.add(event)
@@ -58,7 +59,7 @@ async def create_user(db: AsyncSession, email: str, password_hash: str):
     user = User(
         email=email,
         password_hash=password_hash,
-        created_at=datetime.now(timezone.utc)
+        created_at=utcnow() #datetime.now(timezone.utc)
     )
     db.add(user)
     await db.commit()
@@ -69,7 +70,7 @@ async def create_device(db: AsyncSession, user_id: int, name: str, api_key: str)
         user_id=user_id,
         name=name,
         api_key=api_key,
-        created_at=datetime.now(timezone.utc)
+        created_at=utcnow()     #datetime.now(timezone.utc)
     )
     db.add(device)
     await db.commit()
@@ -87,7 +88,7 @@ async def create_refresh_token(db: AsyncSession, user_id: int, token: str, expir
     refreshToken = RefreshToken(
         user_id=user_id,
         token=token,
-        created_at=datetime.now(timezone.utc),
+        created_at=utcnow(), #datetime.now(timezone.utc),
         expires_at=expires_at
     )
     db.add(refreshToken)
