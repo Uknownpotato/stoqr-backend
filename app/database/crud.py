@@ -1,7 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
-from app.database.models import Product, ScanEvent, User, Device, RefreshToken
-from datetime import datetime, timezone
+from app.database.models import Product, ScanEvent, User, Device, RefreshToken, ClaimedDevice
+from datetime import datetime
 from app.utils import utcnow
 
 async def get_product(db: AsyncSession, barcode: str) -> Product | None:
@@ -13,7 +13,7 @@ async def save_product(db: AsyncSession, barcode: str, product_name: str, brand:
         barcode=barcode,
         product_name=product_name,
         brand=brand,
-        cached_at=utcnow()  #datetime.now(timezone.utc)
+        cached_at=utcnow()
     )
     db.add(product)
     await db.commit()
@@ -24,7 +24,7 @@ async def save_scan_event(db: AsyncSession, device_id: int, barcode: str, action
         device_id=device_id,
         barcode=barcode,
         action=action,
-        timestamp=utcnow(),  #datetime.now(timezone.utc),
+        timestamp=utcnow(),
         source=source
     )
     db.add(event)
@@ -59,7 +59,7 @@ async def create_user(db: AsyncSession, email: str, password_hash: str):
     user = User(
         email=email,
         password_hash=password_hash,
-        created_at=utcnow() #datetime.now(timezone.utc)
+        created_at=utcnow()
     )
     db.add(user)
     await db.commit()
@@ -70,7 +70,7 @@ async def create_device(db: AsyncSession, user_id: int, name: str, api_key: str)
         user_id=user_id,
         name=name,
         api_key=api_key,
-        created_at=utcnow()     #datetime.now(timezone.utc)
+        created_at=utcnow()
     )
     db.add(device)
     await db.commit()
@@ -88,7 +88,7 @@ async def create_refresh_token(db: AsyncSession, user_id: int, token: str, expir
     refreshToken = RefreshToken(
         user_id=user_id,
         token=token,
-        created_at=utcnow(), #datetime.now(timezone.utc),
+        created_at=utcnow(),
         expires_at=expires_at
     )
     db.add(refreshToken)
@@ -110,3 +110,54 @@ async def delete_refresh_token(db: AsyncSession, token: str):
 async def get_user_by_id(db: AsyncSession, user_id: int):
     result = await db.execute(select(User).where(User.id == user_id))
     return result.scalar_one_or_none()
+
+async def create_claimed_device(db: AsyncSession, mac_address: str, claim_token: str):
+    device = ClaimedDevice(
+        mac_address=mac_address,
+        claim_token=claim_token,
+        claimed_at=utcnow(),
+        linked=False
+    )
+    db.add(device)
+    await db.commit()
+    return device
+
+async def get_claimed_device_by_token(db: AsyncSession, claim_token: str):
+    result = await db.execute(select(ClaimedDevice).where(ClaimedDevice.claim_token == claim_token))
+    return result.scalar_one_or_none()
+
+async def get_claimed_device_by_mac(db: AsyncSession, mac_address: str):
+    result = await db.execute(select(ClaimedDevice).where(ClaimedDevice.mac_address == mac_address))
+    return result.scalar_one_or_none()
+
+async def link_claimed_device(db: AsyncSession, claim_token: str, device_id: int):
+    result = await db.execute(select(ClaimedDevice).where(ClaimedDevice.claim_token == claim_token))
+    claimed = result.scalar_one_or_none()
+    if claimed is None:
+        return None
+    claimed.linked = True
+    claimed.device_id = device_id
+    await db.commit()
+    return claimed
+
+async def get_inventory_by_user(db: AsyncSession, user_id: int):
+    devices_result = await db.execute(select(Device).where(Device.user_id == user_id))
+    devices = devices_result.scalars().all()
+    device_ids = [d.id for d in devices]
+
+    if not device_ids:
+        return {}
+    
+    result = await db.execute(select(ScanEvent).where(ScanEvent.device_id.in_(device_ids)))
+    events = result.scalars().all()
+
+    quantities = {}
+    for event in events:
+        if event.barcode not in quantities:
+            quantities[event.barcode] = 0
+        if event.action == "add":
+            quantities[event.barcode] += 1
+        elif event.action == "remove":
+            quantities[event.barcode] -= 1
+
+    return {k: v for k, v in quantities.items() if v > 0}

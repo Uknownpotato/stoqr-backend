@@ -56,3 +56,18 @@ class DeviceRegisterResponse(BaseModel):
     device_id: int
     name: str
     api_key: str
+
+class ClaimDeviceRequest(BaseModel):
+    mac_address: str
+
+class ClaimDeviceResponse(BaseModel):
+    claim_token: str
+
+class LinkDeviceRequest(BaseModel):
+    claim_token: str
+    name: str
+
+class PollDeviceResponse(BaseModel):
+    linked: bool
+    device_id: Optional[int] = None
+    api_key: Optional[str] = None
